@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Meal } from './meal.model';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
 @Injectable({
@@ -14,10 +14,11 @@ export class MealService {
   mealsRemoving = new Subject<boolean>();
 
   mealTimeOptions = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
-
+  totalCalories = 0;
   private meals: Meal[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+  }
 
   getMeals() {
     return this.meals.slice();
@@ -39,9 +40,32 @@ export class MealService {
         this.meals = meals;
         this.mealsChange.next(this.meals.slice());
         this.mealsFetching.next(false);
+        this.getCalories();
       }, () => {
         this.mealsFetching.next(false);
       });
   }
 
+  removeMeal(id: string) {
+    this.mealsRemoving.next(true);
+
+    this.http.delete(`https://project-server-788da-default-rtdb.firebaseio.com/${id}.json`)
+      .pipe(tap(() => {
+          this.mealsRemoving.next(false);
+        }, () => {
+          this.mealsRemoving.next(false);
+        })
+      )
+      .subscribe(() => {
+        this.mealsChange.next(this.meals.slice());
+      });
+  }
+
+  getCalories() {
+    let total = 0;
+    this.meals.forEach((meal) => {
+      total+=meal.kcal;
+    });
+    return total;
+  }
 }

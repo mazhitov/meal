@@ -1,11 +1,11 @@
 <div class="container-sm">
   <div class="row justify-content-between align-items-center">
-    <p class="col-4 pt-3">Total calories: {{getCalories()}}</p>
+    <p class="col-4 pt-3">Total calories: {{ totalKcalories }}</p>
     <a [routerLink]="['/']" class="btn btn-primary mr-5">Add new meal</a>
   </div>
 
-  <div *ngIf="!isFetching;else isFetchingSpinner" class="list-group">
-    <div class="list-group-item list-group-item-action" *ngFor="let meal of meals">
+  <div *ngIf="!isFetching;else isFetchingSpinner">
+    <div class="card mb-4" *ngFor="let meal of meals">
       <app-meal [meal]="meal"></app-meal>
     </div>
   </div>
