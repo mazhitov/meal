@@ -30,7 +30,6 @@ export class EditAddComponent implements OnInit, OnDestroy {
     this.mealUploadingSubscription = this.mealService.mealsUploading.subscribe((isUploading: boolean) => {
       this.isUploading = isUploading;
     });
-
     this.route.data.subscribe(data => {
       const meal = <Meal | null>data.meal;
 
@@ -41,6 +40,7 @@ export class EditAddComponent implements OnInit, OnDestroy {
           mealTime: meal.mealTime,
           description: meal.description,
           kcal: meal.kcal,
+          date: meal.date
         });
       } else {
         this.isEdit = false;
@@ -49,6 +49,7 @@ export class EditAddComponent implements OnInit, OnDestroy {
           mealTime: '',
           description: '',
           kcal: 0,
+          date: this.mealService.getDate(),
         });
       }
     });
@@ -67,8 +68,8 @@ export class EditAddComponent implements OnInit, OnDestroy {
       this.mealForm.value.mealTime,
       this.mealForm.value.description,
       this.mealForm.value.kcal,
+      this.mealForm.value.date
     );
-
     if (this.isEdit) {
       this.mealService.editMeal(newMeal).subscribe(() => {
         this.mealService.fetchMeals();
@@ -80,6 +81,7 @@ export class EditAddComponent implements OnInit, OnDestroy {
       });
     }
   }
+
 
   ngOnDestroy() {
     this.mealUploadingSubscription.unsubscribe();

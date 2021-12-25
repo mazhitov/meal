@@ -32,11 +32,11 @@ export class MealService {
         }
         return Object.keys(result).map(id => {
           const meal = result[id];
-          return new Meal(id, meal.mealTime, meal.description, meal.kcal);
+          return new Meal(id, meal.mealTime, meal.description, meal.kcal, meal.date);
         });
       }))
       .subscribe(meals => {
-        this.meals = meals;
+        this.meals = this.sortByDate(meals);
         this.mealsChange.next(this.meals.slice());
         this.mealsFetching.next(false);
         this.getCalories();
@@ -51,7 +51,7 @@ export class MealService {
         if (!result) {
           return null;
         }
-        return new Meal(id, result.mealTime, result.description, result.kcal);
+        return new Meal(id, result.mealTime, result.description, result.kcal, result.date);
       }),
     );
   }
@@ -60,7 +60,8 @@ export class MealService {
     const body = {
       mealTime: meal.mealTime,
       description: meal.description,
-      kcal: meal.kcal
+      kcal: meal.kcal,
+      date: meal.date
     };
 
     this.mealsUploading.next(true);
@@ -81,6 +82,7 @@ export class MealService {
       mealTime: meal.mealTime,
       description: meal.description,
       kcal: meal.kcal,
+      date: meal.date,
     };
 
     return this.http.put(`https://project-server-788da-default-rtdb.firebaseio.com/meals/${meal.id}.json`, body).pipe(
@@ -105,9 +107,30 @@ export class MealService {
 
   getCalories() {
     let total = 0;
-    this.meals.forEach((meal) => {
-      total += meal.kcal;
+    const today = this.getDate();
+    this.meals.forEach(meal => {
+      if (meal.date === today) {
+        total += meal.kcal;
+      }
     });
     return total;
+  }
+
+  getDate() {
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let newMonth = month.toString();
+    if (month < 10) newMonth = '0' + month.toString();
+    let newDay = day.toString();
+    if (day < 10) newDay = '0' + day;
+    return year + '-' + newMonth + '-' + newDay;
+  }
+
+  sortByDate(meals: Meal[]) {
+    return meals.sort(function (a, b): any {
+      return Date.parse(b.date) - Date.parse(a.date);
+    });
   }
 }
