@@ -14,7 +14,6 @@ export class MealService {
   mealsRemoving = new Subject<boolean>();
 
   mealTimeOptions = ['Breakfast', 'Snack', 'Lunch', 'Dinner'];
-  totalCalories = 0;
   private meals: Meal[] = [];
 
   constructor(private http: HttpClient) {
@@ -46,25 +45,68 @@ export class MealService {
       });
   }
 
+  fetchMeal(id: string) {
+    return this.http.get<Meal | null>(`https://project-server-788da-default-rtdb.firebaseio.com/meals/${id}.json`).pipe(
+      map(result => {
+        if (!result) {
+          return null;
+        }
+        return new Meal(id, result.mealTime, result.description, result.kcal);
+      }),
+    );
+  }
+
+  addMeal(meal: Meal) {
+    const body = {
+      mealTime: meal.mealTime,
+      description: meal.description,
+      kcal: meal.kcal
+    };
+
+    this.mealsUploading.next(true);
+
+    return this.http.post('https://project-server-788da-default-rtdb.firebaseio.com/meals.json', body).pipe(
+      tap(() => {
+        this.mealsUploading.next(false);
+      }, () => {
+        this.mealsUploading.next(false);
+      })
+    );
+  }
+
+  editMeal(meal: Meal) {
+    this.mealsUploading.next(true);
+
+    const body = {
+      mealTime: meal.mealTime,
+      description: meal.description,
+      kcal: meal.kcal,
+    };
+
+    return this.http.put(`https://project-server-788da-default-rtdb.firebaseio.com/meals/${meal.id}.json`, body).pipe(
+      tap(() => {
+        this.mealsUploading.next(false);
+      }, () => {
+        this.mealsUploading.next(false);
+      })
+    );
+  }
+
   removeMeal(id: string) {
     this.mealsRemoving.next(true);
-
-    this.http.delete(`https://project-server-788da-default-rtdb.firebaseio.com/${id}.json`)
+    return this.http.delete(`https://project-server-788da-default-rtdb.firebaseio.com/meals/${id}.json`)
       .pipe(tap(() => {
           this.mealsRemoving.next(false);
         }, () => {
           this.mealsRemoving.next(false);
         })
       )
-      .subscribe(() => {
-        this.mealsChange.next(this.meals.slice());
-      });
   }
 
   getCalories() {
     let total = 0;
     this.meals.forEach((meal) => {
-      total+=meal.kcal;
+      total += meal.kcal;
     });
     return total;
   }

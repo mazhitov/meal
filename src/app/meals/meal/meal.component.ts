@@ -10,20 +10,24 @@ import { Subscription } from 'rxjs';
 })
 export class MealComponent implements OnInit, OnDestroy {
   @Input() meal!: Meal;
-
+  deleteId = '';
   isRemoving = false;
-  mealRemovingSubscription!:Subscription;
+  mealRemovingSubscription!: Subscription;
 
-  constructor(private mealService: MealService) {}
+  constructor(private mealService: MealService) {
+  }
 
   ngOnInit(): void {
-    this.mealRemovingSubscription = this.mealService.mealsRemoving.subscribe((isRemoving:boolean) => {
+    this.mealRemovingSubscription = this.mealService.mealsRemoving.subscribe((isRemoving: boolean) => {
       this.isRemoving = isRemoving;
     });
   }
 
-  onRemove(id:string) {
-    this.mealService.removeMeal(id);
+  onRemove(id: string) {
+    this.deleteId = id;
+    this.mealService.removeMeal(id).subscribe(() => {
+      this.mealService.fetchMeals();
+    });
   }
 
   ngOnDestroy() {

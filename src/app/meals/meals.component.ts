@@ -10,12 +10,13 @@ import { Subscription } from 'rxjs';
 })
 export class MealsComponent implements OnInit, OnDestroy {
   meals: Meal[] = [];
-  mealsChangeSubscription!:Subscription;
-  mealsIsFetchingSubscription!:Subscription;
+  mealsChangeSubscription!: Subscription;
+  mealsIsFetchingSubscription!: Subscription;
   isFetching = false;
   totalKcalories = 0;
 
-  constructor(private mealService: MealService) {}
+  constructor(private mealService: MealService) {
+  }
 
   ngOnInit(): void {
     this.meals = this.mealService.getMeals();
@@ -24,7 +25,7 @@ export class MealsComponent implements OnInit, OnDestroy {
       this.totalKcalories = this.mealService.getCalories();
     });
 
-    this.mealsIsFetchingSubscription = this.mealService.mealsFetching.subscribe((isFetching:boolean) => {
+    this.mealsIsFetchingSubscription = this.mealService.mealsFetching.subscribe((isFetching: boolean) => {
       this.isFetching = isFetching;
     });
     this.mealService.fetchMeals();

@@ -7,16 +7,22 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { MealsComponent } from './meals/meals.component';
 import { MealComponent } from './meals/meal/meal.component';
 import { HttpClientModule } from '@angular/common/http';
+import { EditAddComponent } from './meals/edit-add/edit-add.component';
+import { FormsModule } from '@angular/forms';
+import { NotFoundComponent } from './not-found.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ToolbarComponent,
     MealsComponent,
-    MealComponent
+    MealComponent,
+    EditAddComponent,
+    NotFoundComponent
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     HttpClientModule,
     AppRoutingModule
   ],
